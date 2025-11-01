@@ -6,13 +6,9 @@ var postgres = builder.AddPostgres("postgres")
 
 var database = postgres.AddDatabase("dddplaygrounddb");
 
-// Add Redis cache
-var cache = builder.AddRedis("cache");
-
-// Add API service with database and cache dependencies
+// Add API service with database dependency
 var apiService = builder.AddProject<Projects.DDDPlayground_ApiService>("apiservice")
     .WithReference(database)
-    .WithReference(cache)
     .WithHttpHealthCheck("/health");
 
 builder.Build().Run();
