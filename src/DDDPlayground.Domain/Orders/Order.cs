@@ -1,3 +1,5 @@
+using DDDPlayground.Domain.Common;
+using DDDPlayground.Domain.Events;
 using DDDPlayground.Domain.Exceptions;
 using DDDPlayground.Domain.ValueObjects;
 
@@ -15,7 +17,7 @@ namespace DDDPlayground.Domain.Orders;
 /// 6. Domain Events - Raises events for significant business occurrences
 /// 7. Persistence Ignorance - No EF attributes, database concerns
 /// </summary>
-public sealed class Order
+public sealed class Order : AggregateRoot
 {
     private readonly List<OrderItem> _items = new();
 
@@ -60,6 +62,15 @@ public sealed class Order
         }
 
         order.RecalculateTotals();
+
+        // Raise domain event for order creation
+        var orderCreatedEvent = new OrderCreatedEvent(
+            order.Id,
+            order.CustomerId,
+            order._items.Count,
+            order.Total);
+
+        order.RaiseDomainEvent(orderCreatedEvent);
 
         return order;
     }
@@ -186,7 +197,14 @@ public sealed class Order
         Status = OrderStatus.Confirmed;
         ConfirmedAt = DateTime.UtcNow;
 
-        // TODO: Raise OrderConfirmedEvent (will implement with MediatR)
+        // Raise domain event for side effects
+        var orderConfirmedEvent = new OrderConfirmedEvent(
+            Id,
+            CustomerId,
+            Total,
+            ConfirmedAt.Value);
+
+        RaiseDomainEvent(orderConfirmedEvent);
     }
 
     /// <summary>

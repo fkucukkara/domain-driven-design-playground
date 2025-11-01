@@ -1,3 +1,4 @@
+using DDDPlayground.Application.Common;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DDDPlayground.Application;
@@ -16,6 +17,9 @@ public static class DependencyInjection
     {
         // Register MediatR handlers from this assembly
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
+
+        // Register domain event publisher
+        services.AddScoped<IDomainEventPublisher, DomainEventPublisher>();
 
         return services;
     }

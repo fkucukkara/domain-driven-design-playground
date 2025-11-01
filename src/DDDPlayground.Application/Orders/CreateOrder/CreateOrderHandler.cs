@@ -19,18 +19,23 @@ public sealed class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Ord
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDomainEventPublisher _domainEventPublisher;
 
-    public CreateOrderHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork)
+    public CreateOrderHandler(
+        IOrderRepository orderRepository,
+        IUnitOfWork unitOfWork,
+        IDomainEventPublisher domainEventPublisher)
     {
         _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;
+        _domainEventPublisher = domainEventPublisher;
     }
 
     public async Task<OrderResponse> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
     {
         // Convert DTOs to domain value objects and entities
         var customerId = new CustomerId(request.CustomerId);
-        
+
         var orderItems = request.Items.Select(item =>
             OrderItem.Create(
                 new ProductId(item.ProductId),
@@ -45,6 +50,9 @@ public sealed class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Ord
         // Persist aggregate
         await _orderRepository.AddAsync(order, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // Publish domain events after successful persistence (if any were raised)
+        await _domainEventPublisher.PublishDomainEventsAsync(order, cancellationToken);
 
         // Manual mapping: Domain → Response DTO
         return OrderResponse.FromDomain(order);

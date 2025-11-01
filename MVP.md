@@ -126,6 +126,27 @@ Business Rules:
 - Events dispatched in-memory, not persisted
 - Shows pattern without event sourcing complexity
 
+### Domain Event Flow
+```
+1. Aggregate.Confirm() → RaiseDomainEvent(event)
+   ↓ (Event collected in AggregateRoot._domainEvents list)
+2. Repository.UpdateAsync(aggregate)
+   ↓
+3. UnitOfWork.SaveChangesAsync()  ← Transaction committed
+   ↓ (Only after successful persistence)
+4. IDomainEventPublisher.PublishDomainEventsAsync(aggregates)
+   ↓ (Maps domain events to MediatR notifications)
+5. MediatR.Publish(OrderConfirmedNotification)
+   ↓
+6. OrderConfirmedEventHandler.Handle()  ← Side effects (logging, etc.)
+```
+
+**Key Benefits:**
+- Events only published after successful persistence (consistency)
+- Domain remains pure (no MediatR dependency)
+- Application layer bridges domain events to infrastructure (MediatR)
+- Easy to add new event handlers without changing aggregates
+
 ---
 
 ## Architecture Layers
@@ -245,8 +266,10 @@ orders.MapPost("/{id}/cancel", CancelOrder);         // Cancel order
    - Email validation
 
 4. **Domain Events (In-Memory)**
-   - OrderConfirmedEvent raised by aggregate
-   - MediatR notifications for in-process side effects
+   - OrderConfirmedEvent raised by aggregate via AggregateRoot base class
+   - Domain events collected in aggregate and published after successful persistence
+   - MediatR notifications for in-process side effects (logging, notifications, etc.)
+   - IDomainEventPublisher service ensures events published only after successful transaction
    - Educational demo without persistence complexity
 
 5. **Repository Pattern**
@@ -461,7 +484,7 @@ CREATE TABLE Products (
 ### 1. Domain Model (Pure Business Logic)
 ```csharp
 // DDDPlayground.Domain/Orders/Order.cs
-public sealed class Order  // No EF attributes, no persistence concerns
+public sealed class Order : AggregateRoot  // Inherits event raising capability
 {
     private readonly List<OrderItem> _items = new();
     
@@ -478,14 +501,18 @@ public sealed class Order  // No EF attributes, no persistence concerns
         return new Order(OrderId.New(), customerId, items);
     }
     
-    // Business behavior
+    // Business behavior with domain event
     public void Confirm()
     {
         if (Status != OrderStatus.Draft)
             throw new DomainException("Only draft orders can be confirmed");
         
         Status = OrderStatus.Confirmed;
-        // Raise domain event
+        ConfirmedAt = DateTime.UtcNow;
+        
+        // Raise domain event (collected in aggregate, published after persistence)
+        var orderConfirmedEvent = new OrderConfirmedEvent(Id, CustomerId, Total, ConfirmedAt.Value);
+        RaiseDomainEvent(orderConfirmedEvent);
     }
 }
 ```
