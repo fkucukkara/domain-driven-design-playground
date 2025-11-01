@@ -2,6 +2,7 @@ using DDDPlayground.ApiService.Endpoints;
 using DDDPlayground.Application;
 using DDDPlayground.Infrastructure;
 using DDDPlayground.Infrastructure.Persistence;
+using DDDPlayground.Infrastructure.Persistence.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,13 @@ builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// Apply database migrations at startup in Development environment
+// For production, use proper migration deployment strategies (e.g., init containers, deployment scripts)
+if (app.Environment.IsDevelopment())
+{
+    await app.MigrateDatabaseAsync<AppDbContext>();
+}
 
 // Configure the HTTP request pipeline
 app.UseExceptionHandler();

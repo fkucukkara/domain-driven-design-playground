@@ -52,7 +52,7 @@ public class OrderRepository : IOrderRepository
     public async Task UpdateAsync(Order order, CancellationToken cancellationToken = default)
     {
         var entity = await _context.Orders
-            .Include(o => o.Items)
+         .Include(o => o.Items)
             .FirstOrDefaultAsync(o => o.Id == order.Id.Value, cancellationToken);
 
         if (entity is null)
@@ -70,19 +70,51 @@ public class OrderRepository : IOrderRepository
         entity.TotalCurrency = order.Total.Currency;
         entity.ConfirmedAt = order.ConfirmedAt;
 
-        // Update items collection
-        entity.Items.Clear();
-        foreach (var item in order.Items)
+        // For items, instead of clearing and recreating, we'll:
+        // 1. Remove items that no longer exist in domain
+        // 2. Update existing items that match by ProductId
+        // 3. Add new items
+
+        var existingItems = entity.Items.ToList();
+        var domainItems = order.Items.ToList();
+
+        // Remove items that no longer exist in domain
+        var itemsToRemove = existingItems
+            .Where(existing => !domainItems.Any(domain => domain.ProductId.Value == existing.ProductId))
+            .ToList();
+
+        foreach (var itemToRemove in itemsToRemove)
         {
-            entity.Items.Add(OrderItemMapper.ToEntity(item));
+            entity.Items.Remove(itemToRemove);
         }
 
-        _context.Orders.Update(entity);
+        // Update existing items and add new ones
+        foreach (var domainItem in domainItems)
+        {
+            var existingItem = existingItems
+                .FirstOrDefault(e => e.ProductId == domainItem.ProductId.Value);
+
+            if (existingItem is not null)
+            {
+                // Update existing item
+                existingItem.Quantity = domainItem.Quantity;
+                existingItem.UnitPriceAmount = domainItem.UnitPrice.Amount;
+                existingItem.UnitPriceCurrency = domainItem.UnitPrice.Currency;
+            }
+            else
+            {
+                // Add new item
+                var newItemEntity = OrderItemMapper.ToEntity(domainItem);
+                newItemEntity.OrderId = entity.Id;
+                entity.Items.Add(newItemEntity);
+            }
+        }
     }
 
     public async Task DeleteAsync(OrderId id, CancellationToken cancellationToken = default)
     {
         var entity = await _context.Orders
+            .Include(o => o.Items) // Include items for proper cascade deletion
             .FirstOrDefaultAsync(o => o.Id == id.Value, cancellationToken);
 
         if (entity is not null)

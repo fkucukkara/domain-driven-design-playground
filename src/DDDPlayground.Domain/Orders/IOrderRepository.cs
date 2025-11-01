@@ -30,6 +30,11 @@ public interface IOrderRepository
     Task UpdateAsync(Order order, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Delete an order by its ID.
+    /// </summary>
+    Task DeleteAsync(OrderId orderId, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Get orders by customer ID.
     /// </summary>
     Task<IReadOnlyList<Order>> GetByCustomerIdAsync(CustomerId customerId, CancellationToken cancellationToken = default);
