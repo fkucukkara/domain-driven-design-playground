@@ -110,17 +110,6 @@ applyTo: '**/*.cs'
 - Show how to implement custom telemetry and correlation IDs for request tracking.
 - Explain how to monitor API performance, errors, and usage patterns.
 
-## Testing
-
-- Always include test cases for critical paths of the application.
-- Guide users through creating unit tests.
-- Do not emit "Act", "Arrange" or "Assert" comments.
-- Copy existing style in nearby files for test method names and capitalization.
-- Explain integration testing approaches for API endpoints.
-- Demonstrate how to mock dependencies for effective testing.
-- Show how to test authentication and authorization logic.
-- Explain test-driven development principles as applied to API development.
-
 ## Performance Optimization
 
 - Guide users on implementing caching strategies (in-memory, distributed, response caching).

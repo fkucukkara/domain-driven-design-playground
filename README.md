@@ -15,7 +15,6 @@
 - [Getting Started](#getting-started)
 - [Project Structure](#project-structure)
 - [API Endpoints](#api-endpoints)
-- [Testing](#testing)
 - [Learning Resources](#learning-resources)
 
 ## 🎯 Overview
@@ -119,7 +118,6 @@ This project demonstrates **true domain/persistence separation** with three dist
 | **ORM** | Entity Framework Core 9.0 |
 | **CQRS** | MediatR 13.1 |
 | **Validation** | FluentValidation 12.0 |
-| **Testing** | xUnit, FluentAssertions |
 | **Documentation** | OpenAPI/Swagger |
 
 ## 🚀 Getting Started
@@ -316,24 +314,6 @@ POST /api/orders/{id}/confirm
 
 Use the included `DDDPlayground.ApiService.http` file with Visual Studio or VS Code REST Client extension.
 
-## 🧪 Testing
-
-### Running Tests
-
-```powershell
-# Run all tests
-dotnet test
-
-# Run with coverage
-dotnet test /p:CollectCoverage=true
-```
-
-### Test Categories
-
-- **Domain Tests**: Unit tests for aggregates, value objects, domain services
-- **Application Tests**: Handler tests using in-memory repositories
-- **Integration Tests**: End-to-end API tests with test database
-
 ## 📚 Learning Resources
 
 ### Key Files to Study
@@ -356,7 +336,7 @@ dotnet test /p:CollectCoverage=true
 4. **Minimal APIs**: `DDDPlayground.ApiService/Endpoints/OrderEndpoints.cs`
    - MapGroup organization
    - TypedResults for type safety
-   - Static handlers for testability
+   - Static handlers for performance
 
 ### Patterns Explained
 

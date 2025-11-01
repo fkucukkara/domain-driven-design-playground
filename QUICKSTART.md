@@ -214,12 +214,6 @@ cd DDDPlayground.Infrastructure
 dotnet ef migrations add <MigrationName> --startup-project ../DDDPlayground.ApiService
 ```
 
-### Running Tests (when added)
-
-```powershell
-dotnet test
-```
-
 ### Viewing Logs
 
 Check the Aspire Dashboard **Logs** tab, or view structured logs in the console.
