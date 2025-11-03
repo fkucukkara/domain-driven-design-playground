@@ -29,8 +29,8 @@ public class AppDbContext : DbContext, IUnitOfWork
     /// <summary>
     /// IUnitOfWork implementation - commits all changes in a single transaction.
     /// </summary>
-    public async Task<int> SaveChangesAsync()
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return await base.SaveChangesAsync();
+        return await base.SaveChangesAsync(cancellationToken);
     }
 }
