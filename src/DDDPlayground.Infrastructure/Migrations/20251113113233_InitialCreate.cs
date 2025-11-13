@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace DDDPlayground.Infrastructure.Persistence.Migrations
+namespace DDDPlayground.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

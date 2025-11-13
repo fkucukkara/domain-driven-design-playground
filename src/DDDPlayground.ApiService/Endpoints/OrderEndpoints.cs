@@ -26,8 +26,7 @@ public static class OrderEndpoints
     public static RouteGroupBuilder MapOrderEndpoints(this IEndpointRouteBuilder routes)
     {
         var group = routes.MapGroup("/api/orders")
-            .WithTags("Orders")
-            .WithOpenApi();
+            .WithTags("Orders");
 
         group.MapPost("/", CreateOrderAsync)
             .WithName("CreateOrder")

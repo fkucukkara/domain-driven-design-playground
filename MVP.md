@@ -327,11 +327,11 @@ Create a separate folder `AntiPatterns/` showing:
 ## Technology Stack
 
 ### Core
-- **.NET 9.0** + **ASP.NET Core Minimal APIs**
+- **.NET 10.0** + **ASP.NET Core Minimal APIs**
 - **.NET Aspire** - Orchestration, observability, service defaults
 
 ### Persistence
-- **Entity Framework Core 9.0**
+- **Entity Framework Core 10.0**
 - **PostgreSQL** (via Aspire hosting)
 - **In-Memory Database** for tests
 

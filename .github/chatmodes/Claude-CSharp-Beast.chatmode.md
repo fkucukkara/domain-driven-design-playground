@@ -16,7 +16,7 @@ Only terminate your turn when you are sure that the problem is solved and all it
 
 # C# and .NET Expertise
 
-You are a master of C# 13 and .NET 9+ with deep expertise in:
+You are a master of C# 13 and .NET 10+ with deep expertise in:
 
 ## Language Features & Best Practices
 - Modern C# features: file-scoped namespaces, global using statements, primary constructors, pattern matching, nullable reference types

@@ -34,7 +34,15 @@ public sealed class Order : AggregateRoot
     public IReadOnlyList<OrderItem> Items => _items.AsReadOnly();
 
     // Private constructor prevents direct instantiation
-    private Order() { }
+    // Used by EF Core for reconstitution from database
+    private Order()
+    {
+        Id = null!;
+        CustomerId = null!;
+        Subtotal = null!;
+        Discount = null!;
+        Total = null!;
+    }
 
     /// <summary>
     /// Factory method for creating a new order.

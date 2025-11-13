@@ -1,8 +1,8 @@
 # DDD Playground - Educational Showcase API
 
-> An educational REST API demonstrating **Domain-Driven Design (DDD)** patterns, **Clean Architecture**, and **.NET best practices** using **.NET 9** and **.NET Aspire**.
+> An educational REST API demonstrating **Domain-Driven Design (DDD)** patterns, **Clean Architecture**, and **.NET best practices** using **.NET 10** and **.NET Aspire**.
 
-[![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
 [![Aspire](https://img.shields.io/badge/.NET%20Aspire-9.5-512BD4)](https://learn.microsoft.com/dotnet/aspire/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -110,12 +110,12 @@ This project demonstrates **true domain/persistence separation** with three dist
 ## 🛠️ Technology Stack
 
 | Category | Technology |
-|----------|-----------|
-| **Framework** | .NET 9.0 |
+|----------|-----------||
+| **Framework** | .NET 10.0 |
 | **Orchestration** | .NET Aspire 9.5 |
 | **API** | ASP.NET Core Minimal APIs |
 | **Database** | PostgreSQL (Aspire-hosted) |
-| **ORM** | Entity Framework Core 9.0 |
+| **ORM** | Entity Framework Core 10.0 |
 | **CQRS** | MediatR 13.1 |
 | **Validation** | FluentValidation 12.0 |
 | **Documentation** | OpenAPI/Swagger |
@@ -124,7 +124,7 @@ This project demonstrates **true domain/persistence separation** with three dist
 
 ### Prerequisites
 
-- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (or later)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (or later)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) (for PostgreSQL container)
 - [Visual Studio 2022 17.12+](https://visualstudio.microsoft.com/) or [VS Code](https://code.visualstudio.com/) with C# extension
 - [.NET Aspire workload](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling) installed
