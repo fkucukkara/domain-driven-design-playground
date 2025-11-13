@@ -3,15 +3,15 @@
 > An educational REST API demonstrating **Domain-Driven Design (DDD)** patterns, **Clean Architecture**, and **.NET best practices** using **.NET 10** and **.NET Aspire**.
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
-[![Aspire](https://img.shields.io/badge/.NET%20Aspire-9.5-512BD4)](https://learn.microsoft.com/dotnet/aspire/)
+[![Aspire](https://img.shields.io/badge/.NET%20Aspire-13.0-512BD4)](https://learn.microsoft.com/dotnet/aspire/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
-- [Architecture](#️-architecture)
+- [Architecture](#-architecture)
 - [Key Patterns Demonstrated](#-key-patterns-demonstrated)
-- [Technology Stack](#️-technology-stack)
+- [Technology Stack](#-technology-stack)
 - [Getting Started](#-getting-started)
 - [Project Structure](#-project-structure)
 - [API Endpoints](#-api-endpoints)
@@ -112,7 +112,7 @@ This project demonstrates **true domain/persistence separation** with three dist
 | Category | Technology |
 |----------|-----------||
 | **Framework** | .NET 10.0 |
-| **Orchestration** | .NET Aspire 9.5 |
+| **Orchestration** | .NET Aspire 13.0 |
 | **API** | ASP.NET Core Minimal APIs |
 | **Database** | PostgreSQL (Aspire-hosted) |
 | **ORM** | Entity Framework Core 10.0 |
