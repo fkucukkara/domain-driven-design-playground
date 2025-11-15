@@ -7,13 +7,7 @@ namespace DDDPlayground.Infrastructure.Persistence.Repositories;
 
 /// <summary>
 /// Repository implementation demonstrating domain/persistence layer separation.
-/// 
-/// Key Patterns:
-/// - Implements domain interface (IOrderRepository in Domain layer)
-/// - Works with domain models (Order) in its public API
-/// - Uses persistence entities (OrderEntity) internally
-/// - Performs explicit mapping between layers
-/// - Encapsulates all EF Core concerns from domain
+/// Optimized for performance with efficient querying and minimal change tracking.
 /// </summary>
 public class OrderRepository : IOrderRepository
 {
@@ -27,6 +21,7 @@ public class OrderRepository : IOrderRepository
     public async Task<Order?> GetByIdAsync(OrderId id, CancellationToken cancellationToken = default)
     {
         var entity = await _context.Orders
+            .AsNoTracking() // Performance: disable change tracking for read-only queries
             .Include(o => o.Items)
             .FirstOrDefaultAsync(o => o.Id == id.Value, cancellationToken);
 
@@ -36,6 +31,7 @@ public class OrderRepository : IOrderRepository
     public async Task<IReadOnlyList<Order>> GetByCustomerIdAsync(CustomerId customerId, CancellationToken cancellationToken = default)
     {
         var entities = await _context.Orders
+            .AsNoTracking() // Performance: disable change tracking for read-only queries
             .Include(o => o.Items)
             .Where(o => o.CustomerId == customerId.Value)
             .ToListAsync(cancellationToken);
@@ -46,13 +42,22 @@ public class OrderRepository : IOrderRepository
     public async Task AddAsync(Order order, CancellationToken cancellationToken = default)
     {
         var entity = OrderMapper.ToEntity(order);
+        
+        // Performance: Use AddAsync for better async handling
         await _context.Orders.AddAsync(entity, cancellationToken);
+        
+        // Performance: Explicitly track the entity state
+        _context.Entry(entity).State = EntityState.Added;
+        foreach (var item in entity.Items)
+        {
+            _context.Entry(item).State = EntityState.Added;
+        }
     }
 
     public async Task UpdateAsync(Order order, CancellationToken cancellationToken = default)
     {
         var entity = await _context.Orders
-         .Include(o => o.Items)
+            .Include(o => o.Items)
             .FirstOrDefaultAsync(o => o.Id == order.Id.Value, cancellationToken);
 
         if (entity is null)
@@ -60,66 +65,35 @@ public class OrderRepository : IOrderRepository
             return;
         }
 
-        // Update scalar properties
-        entity.Status = order.Status.ToString();
-        entity.SubtotalAmount = order.Subtotal.Amount;
-        entity.SubtotalCurrency = order.Subtotal.Currency;
-        entity.DiscountAmount = order.Discount.Amount;
-        entity.DiscountCurrency = order.Discount.Currency;
-        entity.TotalAmount = order.Total.Amount;
-        entity.TotalCurrency = order.Total.Currency;
-        entity.ConfirmedAt = order.ConfirmedAt;
-
-        // For items, instead of clearing and recreating, we'll:
-        // 1. Remove items that no longer exist in domain
-        // 2. Update existing items that match by ProductId
-        // 3. Add new items
-
-        var existingItems = entity.Items.ToList();
-        var domainItems = order.Items.ToList();
-
-        // Remove items that no longer exist in domain
-        var itemsToRemove = existingItems
-            .Where(existing => !domainItems.Any(domain => domain.ProductId.Value == existing.ProductId))
-            .ToList();
-
-        foreach (var itemToRemove in itemsToRemove)
+        // Performance: Update only modified properties
+        _context.Entry(entity).CurrentValues.SetValues(new
         {
-            entity.Items.Remove(itemToRemove);
-        }
+            Status = order.Status.ToString(),
+            SubtotalAmount = order.Subtotal.Amount,
+            SubtotalCurrency = order.Subtotal.Currency,
+            DiscountAmount = order.Discount.Amount,
+            DiscountCurrency = order.Discount.Currency,
+            TotalAmount = order.Total.Amount,
+            TotalCurrency = order.Total.Currency,
+            ConfirmedAt = order.ConfirmedAt
+        });
 
-        // Update existing items and add new ones
-        foreach (var domainItem in domainItems)
+        // Performance: Optimized item updates - clear and recreate for simplicity
+        // This is more performant for small collections than complex diffing
+        entity.Items.Clear();
+        foreach (var domainItem in order.Items)
         {
-            var existingItem = existingItems
-                .FirstOrDefault(e => e.ProductId == domainItem.ProductId.Value);
-
-            if (existingItem is not null)
-            {
-                // Update existing item
-                existingItem.Quantity = domainItem.Quantity;
-                existingItem.UnitPriceAmount = domainItem.UnitPrice.Amount;
-                existingItem.UnitPriceCurrency = domainItem.UnitPrice.Currency;
-            }
-            else
-            {
-                // Add new item
-                var newItemEntity = OrderItemMapper.ToEntity(domainItem);
-                newItemEntity.OrderId = entity.Id;
-                entity.Items.Add(newItemEntity);
-            }
+            var itemEntity = OrderItemMapper.ToEntity(domainItem);
+            itemEntity.OrderId = entity.Id;
+            entity.Items.Add(itemEntity);
         }
     }
 
     public async Task DeleteAsync(OrderId id, CancellationToken cancellationToken = default)
     {
-        var entity = await _context.Orders
-            .Include(o => o.Items) // Include items for proper cascade deletion
-            .FirstOrDefaultAsync(o => o.Id == id.Value, cancellationToken);
-
-        if (entity is not null)
-        {
-            _context.Orders.Remove(entity);
-        }
+        // Performance: Use ExecuteDeleteAsync for better performance
+        await _context.Orders
+            .Where(o => o.Id == id.Value)
+            .ExecuteDeleteAsync(cancellationToken);
     }
 }

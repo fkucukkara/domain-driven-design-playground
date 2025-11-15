@@ -17,7 +17,7 @@ Content-Type: application/json
 }
 
 ### Get Order (replace {orderId} with actual GUID from create response)
-@orderId = 8f3a0840-bd0f-4f80-9bd5-fc176481964d
+@orderId = fe8735c5-7a64-4153-8ce3-d3a2bd9f309b
 GET {{ApiService_HostAddress}}/api/orders/{{orderId}}
 Accept: application/json
 
