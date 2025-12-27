@@ -117,7 +117,7 @@ This project demonstrates **true domain/persistence separation** with three dist
 | **Database** | PostgreSQL (Aspire-hosted) |
 | **ORM** | Entity Framework Core 10.0 |
 | **CQRS** | MediatR 13.1 |
-| **Validation** | FluentValidation 12.0 |
+| **Validation** | FluentValidation 12.1 |
 | **Documentation** | OpenAPI/Swagger |
 
 ## 🚀 Getting Started
@@ -147,8 +147,8 @@ dotnet workload install aspire
 #### Option 2: Command Line
 
 ```powershell
-# Navigate to AppHost project
-cd DDDPlayground.AppHost
+# From solution root
+cd src\DDDPlayground.AppHost
 
 # Run the application
 dotnet run
@@ -172,11 +172,11 @@ Once running, you'll see:
 The database is automatically created on first run. If you need to manage migrations manually:
 
 ```powershell
-# Add a new migration
-dotnet ef migrations add <MigrationName> --project DDDPlayground.Infrastructure
+# Add a new migration (from solution root)
+dotnet ef migrations add <MigrationName> --project src/DDDPlayground.Infrastructure --startup-project src/DDDPlayground.ApiService
 
 # Update database
-dotnet ef database update --project DDDPlayground.Infrastructure --startup-project DDDPlayground.ApiService
+dotnet ef database update --project src/DDDPlayground.Infrastructure --startup-project src/DDDPlayground.ApiService
 ```
 
 ## 📁 Project Structure
@@ -185,10 +185,12 @@ dotnet ef database update --project DDDPlayground.Infrastructure --startup-proje
 DDDPlayground/
 ├── .github/                          # GitHub Actions, issue templates
 ├── DDDPlayground.AppHost/            # Aspire orchestration host
-│   └── Program.cs                    # Configures PostgreSQL, Redis, API service
+│   └── AppHost.cs                    # Configures PostgreSQL, pgAdmin, API service
 ├── DDDPlayground.ServiceDefaults/    # Aspire shared configuration
-│   └── Extensions.cs                 # Service defaults (telemetry, health checks)
-├── DDDPlayground.Domain/             # Pure domain logic (ZERO dependencies)
+│   └── Extensions.cs                 # Service defaults (telemetry, health checks)├── BenchmarkSuite/                   # Performance benchmarks
+│   ├── BenchmarkSuite.csproj
+│   ├── DDDPlaygroundBenchmarks.cs
+│   └── Program.cs├── DDDPlayground.Domain/             # Pure domain logic (ZERO dependencies)
 │   ├── Orders/
 │   │   ├── Order.cs                  # Aggregate root with business logic
 │   │   ├── OrderItem.cs              # Entity within aggregate
@@ -203,7 +205,8 @@ DDDPlayground/
 │   ├── Services/
 │   │   └── PricingService.cs         # Domain service
 │   ├── Events/
-│   │   └── OrderConfirmedEvent.cs    # Domain event
+│   │   ├── OrderConfirmedEvent.cs    # Domain event
+│   │   └── OrderCreatedEvent.cs      # Domain event
 │   └── Exceptions/
 │       └── DomainException.cs        # Base domain exception
 ├── DDDPlayground.Application/        # Use case orchestration
@@ -217,6 +220,10 @@ DDDPlayground/
 │   │   ├── GetOrder/
 │   │   │   ├── GetOrderQuery.cs      # Query DTO
 │   │   │   └── GetOrderHandler.cs    # Query handler
+│   │   ├── EventHandlers/            # Domain event handlers
+│   │   │   ├── OrderConfirmedEventHandler.cs
+│   │   │   └── OrderCreatedEventHandler.cs
+│   │   ├── Notifications/            # MediatR notifications
 │   │   └── OrderResponse.cs          # Response DTO with manual mapping
 │   ├── Common/
 │   │   └── IUnitOfWork.cs            # Transaction boundary
@@ -234,8 +241,10 @@ DDDPlayground/
 │   │   │   └── OrderItemEntityConfiguration.cs
 │   │   ├── Repositories/
 │   │   │   └── OrderRepository.cs    # IOrderRepository implementation
-│   │   ├── Migrations/               # EF Core migrations
-│   │   └── AppDbContext.cs           # DbContext with DbSet<OrderEntity>
+│   │   ├── Migrations/               # EF Core migrations (empty - auto-migrate on startup)
+│   │   ├── Extensions/               # DbContext extensions
+│   │   ├── AppDbContext.cs           # DbContext with DbSet<OrderEntity>
+│   │   └── AppDbContextFactory.cs    # Design-time DbContext factory
 │   └── DependencyInjection.cs        # Repository registration
 ├── DDDPlayground.ApiService/         # HTTP API layer
 │   ├── Endpoints/
@@ -319,22 +328,22 @@ Use the included `DDDPlayground.ApiService.http` file with Visual Studio or VS C
 
 ### Key Files to Study
 
-1. **Domain Model**: `DDDPlayground.Domain/Orders/Order.cs`
+1. **Domain Model**: [src/DDDPlayground.Domain/Orders/Order.cs](src/DDDPlayground.Domain/Orders/Order.cs)
    - Rich domain model with encapsulation
    - Business rules enforcement
    - Factory methods and reconstitution
 
-2. **Persistence Separation**: `DDDPlayground.Infrastructure/Persistence/`
+2. **Persistence Separation**: [src/DDDPlayground.Infrastructure/Persistence/](src/DDDPlayground.Infrastructure/Persistence/)
    - `Models/OrderEntity.cs` - Separate EF entity
    - `Mappers/OrderMapper.cs` - Manual mapping
    - `Configurations/OrderEntityConfiguration.cs` - Fluent API
 
-3. **CQRS Pattern**: `DDDPlayground.Application/Orders/`
+3. **CQRS Pattern**: [src/DDDPlayground.Application/Orders/](src/DDDPlayground.Application/Orders/)
    - Commands vs. Queries
    - Handler responsibilities
    - DTO mapping
 
-4. **Minimal APIs**: `DDDPlayground.ApiService/Endpoints/OrderEndpoints.cs`
+4. **Minimal APIs**: [src/DDDPlayground.ApiService/Endpoints/OrderEndpoints.cs](src/DDDPlayground.ApiService/Endpoints/OrderEndpoints.cs)
    - MapGroup organization
    - TypedResults for type safety
    - Static handlers for performance
