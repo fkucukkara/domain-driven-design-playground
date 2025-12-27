@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using DDDPlayground.Application.Common;
 using DDDPlayground.Infrastructure.Persistence.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DDDPlayground.Infrastructure.Persistence;
 
@@ -27,7 +27,7 @@ public class AppDbContext : DbContext, IUnitOfWork
             optionsBuilder.EnableSensitiveDataLogging(false)
                          .EnableDetailedErrors(false);
         }
-        
+
         base.OnConfiguring(optionsBuilder);
     }
 
@@ -47,7 +47,7 @@ public class AppDbContext : DbContext, IUnitOfWork
     {
         // Optimize change tracking for better performance
         ChangeTracker.AutoDetectChangesEnabled = false;
-        
+
         try
         {
             return await base.SaveChangesAsync(cancellationToken);
